@@ -88,7 +88,7 @@ ex. 자동차 인터페이스에서의 엑셀은 앞으로 가는 기능. 뒤로
 <예제>
 ### 1. 외부요소 혹은 예전에 만들어진 레거시 코드
 
-`OuterTiger`
+`OuterTiger.java`
 ```java
 public class OuterTiger {
     private String fullName = "호랑이";
@@ -102,7 +102,7 @@ public class OuterTiger {
 <br>
 
 ### 2. App에서의 동작
-`App`
+`App.java`
 ```java
 public class App {
     public static void main(String[] args) {
@@ -126,7 +126,7 @@ public class App {
 
 ### 3. `OuterTiger` 의 수정?
 
-`OuterTiger`
+`OuterTiger.java`
 ```java
 public class OuterTiger extends Animal {
     private String fullName = "호랑이";
@@ -164,12 +164,12 @@ public class TigerAdapter extends Animal{
 }
 ```
 > `Adapter` 를 생성함으로써 Animal 객체를 상속받을수 있게 되었다. (재사용)  
-> 또한, 기존 시스템을 건드리지 않고 해결
+> 또한, 기존 시스템을 건드리지 않고 해결하게 되었다.
 
 <br>
 
 ### 5. App에서의 동작
-`App`
+`App.java`
 ```java
 public class App {
     public static void main(String[] args) {
@@ -185,3 +185,52 @@ public class App {
 }
 
 ```
+
+<br>
+
+## 5. 싱글톤 패턴
+
+- 어플리케이션이 시작될 때 어떠한 클래스가 최초 한 번만 메모리를 할당하고 메모리에 인스턴스를  
+만들어 사용하는 패턴
+
+### 1. 적용 예시
+`DoorMan.java`
+```java
+public class DoorMan {
+
+    // 1. static 영역에 객체를 1개 생성
+    // (자바에서 static은 main 메소드를 호출하기 전에 JVM이 먼저 읽어서 메모리에 올라옴.)
+    private static DoorMan doorMan = new DoorMan();
+    
+    // 2. public으로 오픈하여 객체 인스턴스가 필요하면 이 static 메소드를 통해서만 조회하도록 허용.
+    public static DoorMan getInstance() {
+        return doorMan;
+    }
+
+    // 3. 생성자를 private으로 선언해서 외부에서 new 키워드를 사용한 객체 생성을 못하게 막음.
+    private DoorMan() {
+
+    }
+    
+    // 로직 호출
+    public void 쫓아내(Animal a) {
+        System.out.println(a.getName() + "쫓아내");
+    }
+}
+```
+
+### 2. 싱글톤 패턴의 장점
+- 고객의 요청이 올 때마다 객체를 생성하는 것이 아닌 만들어진 객체를 공유하는 것이기 때문에   
+메모리를 효율적으로 사용가능
+- 싱글톤으로 만들어진 클래스의 인스턴스는 전역이기 때문에 다른 클래스의 인스턴스들이  
+데이터를 공유하기 쉬움
+
+<br>
+
+### 3. 싱글톤 패턴의 단점
+- 싱글톤 패턴을 구현하는 코드 자체가 많이 들어감
+- 의존관계상 클라이언트가 구체 클래스에 의존 -> DIP 위반
+- 싱글톤 인스턴스가 너무 많은 일을 하거나 많은 데이터를 공유시킬 경우,  
+다른 클래스의 인스턴스들과의 결합도가 높아져 OCP를 위반할 수 있음.
+- 내부 속성을 변경하거나 초기화 하기 어려움.
+- 결론적으로 유연성이 떨어짐.
