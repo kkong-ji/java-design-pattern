@@ -72,3 +72,116 @@ ex. 자동차 인터페이스에서의 엑셀은 앞으로 가는 기능. 뒤로
     따라서 제어흐름을 통해 데이터가 로딩될 때까지 현재까지 완료된 것을 <br>
     우선적으로 보여주는 것.
   - 객체의 은닉화. 
+  
+<br>
+
+## 4. 어댑터 패턴
+
+<정의>
+- 호환성이 없는 기존 클래스의 인터페이스를 변환 -> 사용자가 기대하는 인터페이스 형태로 변환
+- 코드의 재활용성을 증가하고 기존의 코드를 수정하지 않는다는 장점. (OCP 원칙을 지키게됨)
+
+<사용시점>
+- 외부 요소를 기존 시스템에 재사용하고 싶지만 아직 만들어지지 않은 경우
+- 외부 요소(애플리케이션)가 기대하는 인터페이스와 호환되지 않는 경우
+
+<예제>
+### 1. 외부요소 혹은 예전에 만들어진 레거시 코드
+
+`OuterTiger`
+```java
+public class OuterTiger {
+    private String fullName = "호랑이";
+
+    public String getFullName() {
+        return fullName;
+    }
+}
+```
+
+<br>
+
+### 2. App에서의 동작
+`App`
+```java
+public class App {
+    public static void main(String[] args) {
+        Mouse m = new Mouse();
+        Cat c = new Cat();
+        OuterTiger ot = new OuterTiger();
+        DoorManProxy dm = new DoorManProxy(new DoorMan());
+        dm.쫓아내(m);
+        dm.쫓아내(c);
+        dm.쫓아내(ot);
+    }
+}
+```
+
+> 위와 같이 설계하면 `OuterTiger` 객체에서 오류가 발생한다.
+> Why? `OuterTiger` 는 Animal 타입이 아니기 때문에
+
+그렇다면 어떻게 수정하면 좋을까?
+
+<br>
+
+### 3. `OuterTiger` 의 수정?
+
+`OuterTiger`
+```java
+public class OuterTiger extends Animal {
+    private String fullName = "호랑이";
+
+    public String getFullName() {
+        return fullName;
+    }
+    
+    @Override
+    public String getName() {
+      return null;
+    }
+}
+```
+
+> 위 코드의 문제점은 뭘까?
+> OCP 원칙을 위배. (확장에는 열려있고, 수정에는 닫혀있다.)
+
+<br>
+
+### 4. `TigerAdapter` 생성
+```java
+public class TigerAdapter extends Animal{
+    
+    private OuterTiger outerTiger;
+
+    public TigerAdapter(OuterTiger outerTiger) {
+        this.outerTiger = outerTiger;
+    }
+
+    @Override
+    public String getName() {
+        return outerTiger.getFullName();
+    }
+}
+```
+> `Adapter` 를 생성함으로써 Animal 객체를 상속받을수 있게 되었다. (재사용)  
+> 또한, 기존 시스템을 건드리지 않고 해결
+
+<br>
+
+### 5. App에서의 동작
+`App`
+```java
+public class App {
+    public static void main(String[] args) {
+        Mouse m = new Mouse();
+        Cat c = new Cat();
+        TigerAdapter ot = new TigerAdapter(new OuterTiger());
+        // 어댑터를 
+        DoorManProxy dm = new DoorManProxy(new DoorMan());
+        dm.쫓아내(m);
+        dm.쫓아내(c);
+        dm.쫓아내(ot);
+    }
+}
+
+```
