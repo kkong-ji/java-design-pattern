@@ -234,3 +234,134 @@ public class DoorMan {
 다른 클래스의 인스턴스들과의 결합도가 높아져 OCP를 위반할 수 있음.
 - 내부 속성을 변경하거나 초기화 하기 어려움.
 - 결론적으로 유연성이 떨어짐.
+
+<br>
+
+## 6. 템플릿 메서드 패턴
+- 특정 작업을 처리하는 일부분을 서브 클래스로 캡슐화하여 전체적인 구조는 바꾸지 않으면서 <br>
+특정 단계에서 수행하는 내용을 바꾸는 패턴
+- 상속을 통해 슈퍼클래스의 기능을 확장할 때 사용하는 대표적인 방법.  
+ (변하지 않는 기능은 슈퍼클래스에, 자주 변경되며 확장할 기능은 서브클래스에)
+ 
+ <예제>  
+ 강의를 하는 선생님(Teacher) 클래스가 있다고 가정.  
+ `Teacher` 클래스에는   
+ Java를 가르쳐주는 `JavaTeacher` 클래스,  
+ Python을 가르쳐주는 `PythonTeacher` 클래스가 있음.
+ 
+ ### 1. `JavaTeacher` 클래스
+ ```java
+ public class JavaTeacher{
+     private void 입장하기() {
+        System.out.println("입장하기");
+    }
+
+    private void 출석부르기() {
+        System.out.println("출석부르기");
+    }
+
+    private void 퇴장하기() {
+        System.out.println("퇴장하기");
+    }
+    
+    private void 강의하기() {
+        System.out.println("Java 강의하기");
+    }
+
+    public void 수업시작() {
+        입장하기();
+        출석부르기();
+        강의하기();
+        퇴장하기();
+    }
+ }
+ ```
+ 
+ ### 2. `PythonTeacher` 
+
+```java
+ public class PythonTeacher{
+     private void 입장하기() {
+        System.out.println("입장하기");
+    }
+
+    private void 출석부르기() {
+        System.out.println("출석부르기");
+    }
+
+    private void 퇴장하기() {
+        System.out.println("퇴장하기");
+    }
+    
+    private void 강의하기() {
+        System.out.println("Python 강의하기");
+    }
+
+    public void 수업시작() {
+        입장하기();
+        출석부르기();
+        강의하기();
+        퇴장하기();
+    }
+ }
+ ```
+ <br>
+ 
+- 두 메서드는 `강의하기` 의 내용만 다르고 중복되는 코드들이 존재.  
+ -> 입장하기, 출석부르기, 퇴장하기, 수업시작  
+
+> 중복된 코드들을 없애는 방법이 없을까?  
+-> 추상 클래스를 사용하자  
+
+`Teacher` 라는 부모 클래스를 통해 공통된 기능들을 템플릿화. 
+```java
+public abstract class Teacher {
+    private void 입장하기() {
+        System.out.println("입장하기");
+    }
+
+    private void 출석부르기() {
+        System.out.println("출석부르기");
+    }
+    
+    // 오버라이드(부모의 메서드를 무효화하는 것)
+    abstract void 강의하기();
+
+    private void 퇴장하기() {
+        System.out.println("퇴장하기");
+    }
+
+    public void 수업시작() {
+        입장하기();
+        출석부르기();
+        강의하기();
+        퇴장하기();
+    }
+}
+```
+
+> `JavaTeacher` 클래스와 `PythonTeacher` 클래스는 다음과 같이<br>
+Teacher 클래스를 상속받아 전체적인 틀은 고정하면서<br>
+`강의하기`와 같이 본인의 기능마다 다른 부분을 오버라이딩하여 사용할 수도 있음.(훅 메서드)<br>   
+즉, 동일한 기능을 상위 클래스에서 정의하면서 확장/변화가 필요한 부분만 서브 클래스에서 구현하게 됨.<br>
+
+`JavaTeacher`
+```java
+public class JavaTeacher extends Teacher {
+    // 재정의
+    void 강의하기() {   // 동적바인딩 (C#에서 동적 결)
+        System.out.println("Java 강의하기");
+    }
+}
+```
+
+`PythonTeacher`
+```java
+public class PythonTeacher extends Teacher {
+     void 강의하기() {
+        System.out.println("Python 강의하기");
+    }
+}
+```
+
+
