@@ -61,7 +61,7 @@ ex. 자동차 인터페이스에서의 엑셀은 앞으로 가는 기능. 뒤로
 
 ## 3. 프록시 패턴
 
-- 프록시(Proxy) : 대리자, 대변인
+- **프록시(Proxy)** : 대리자, 대변인
 
 - 어떤 객체를 사용하고자 할 때, 객체를 직접 참조하는 것이 아닌 해당 객체와 <br>
 대응하는 객체를 통해 접근하는 것.
@@ -366,4 +366,115 @@ public class PythonTeacher extends Teacher {
 }
 ```
 
+<br>
 
+## 7. 데코레이터 패턴
+
+- 주어진 상황 및 용도에 따라 어떤 객체에 기능을 동적으로 추가하는 패턴.
+- 기본 기능을 수행하는 클래스를 만들고 기능들을 장식처럼 점점 추가한다하여 **decorator**
+
+<br>
+
+<예제>
+> 알림을 보내는 기능을 구현하고 있다고 가정.  
+> 알림은 총 3가지로 기본알림, 문자알림, 이메일 알림이 있음.  
+
+❗가장먼저, `Notifier` 객체를 구현. 각 클래스는 추상화된 객체인 `Notifier` 상속받음. 
+
+<br>
+
+`Notifier.java`
+```java
+public interface Notifier {
+    void send();
+}
+```
+
+<br>
+
+다음으로, 기본알림 기능 구현.  
+
+`BasicNotifier.java`
+```java
+// wrapper가 없는 Decorator
+public class BasicNotifier implements Notifier{
+    
+    // 이 친구는 뭔가를 의존하면 안된다.
+    @Override
+    public void send() {
+        System.out.println("기본 알림");
+    }
+}
+```
+
+<br>
+
+이메일 알림
+
+`EmailNotifier.java`
+```java
+public class EmailNotifier implements Notifier {
+
+    private Notifier notifier;
+
+    public EmailNotifier(Notifier notifier) {
+        this.notifier = notifier;
+    }
+
+    public EmailNotifier() {
+
+    }
+
+    @Override
+    public void send() {
+        if (notifier != null)
+            notifier.send();
+        System.out.println("이메일 알림");
+    }
+}
+```
+
+<br>
+
+문자 알림
+
+`SmsNotifier.java`
+```java
+public class SmsNotifier implements Notifier {
+    private Notifier notifier;
+
+    public SmsNotifier(Notifier notifier) {
+        this.notifier = notifier;
+    }
+
+    @Override
+    public void send() {
+        notifier.send();
+        System.out.println("문자 알림");
+    }   
+}
+```
+
+<br>
+
+> ❓ 만약, 기본 알림에 문자알림, 이메일 알림을 추가하여 한 번에 사용하고 싶다면?     
+> 각 기능들을 모두 클래스로 구현? -> No. 알림을 사용할때마다 클래스를 생성하면 비효율적.  
+
+이제, `decorator` 패턴을 통해 다음과 같이 한 번에 사용이 가능.  
+
+<br>
+
+`App.java`
+```java
+/*
+ * 데코레이터 패턴 (장식)
+ * (A) -> B(A) -> C(B(A))
+ */
+public class App {
+    public static void main(String[] args) {
+        // 전체 알림 (기본알림 -> 문자알림 -> 이메일 알림)
+        Notifier allNotifier = new SmsNotifier(new EmailNotifier(new BasicNotifier()));
+        allNotifier.send();
+        System.out.println("__end");
+  }
+}
